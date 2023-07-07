@@ -5,12 +5,12 @@
 		>
 			<div class="flex justify-between">
 				<div class="flex gap-1">
-					<div v-if="department.children.length"
+					<button v-if="department.children.length"
 						 @click="toggleShowChildren(department)"
 						 class="hover:cursor-pointer"
 					>
 						<span>{{ showChildren[department.department_id] ? '-' : '+' }}</span>
-					</div>
+					</button>
 					<label :for="department.department_id">
 						{{ department.department_name }} (<span class="italic">{{ department.department_id }}</span>)
 					</label>
@@ -147,6 +147,16 @@ export default {
 			// update children selected status
 			if (department?.children?.length) {
 				department.children.forEach(item => this.updateSelected(item, department.selected))
+
+				// the following lines are hack -- vue 2.6 bug.
+				// we need to toggle hide/show for children for it to re-render the checkboxes
+				department.showChildren = !department.showChildren
+
+				this.$nextTick(() => {
+					department.showChildren = !department.showChildren
+					this.$forceUpdate()
+				})
+				// end hack
 			}
 
 			// update tristate and parent status
