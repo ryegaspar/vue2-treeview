@@ -6,7 +6,7 @@
 			<div class="flex justify-between">
 				<div class="flex gap-1">
 					<div v-if="department.children.length"
-						 @click="toggleShowChildren(department.department_id, department)"
+						 @click="toggleShowChildren(department)"
 						 class="hover:cursor-pointer"
 					>
 						<span>{{ showChildren[department.department_id] ? '-' : '+' }}</span>
@@ -22,16 +22,13 @@
 					   :indeterminate.prop="department.triState"
 				/>
 			</div>
-			<div v-if="department.children.length && showChildren[department.department_id]"
+			<div v-if="department.showChildren"
 				 class="ml-6"
 			>
-				<div v-for="item in department.children">
-					{{ item.department_name }}
-				</div>
-<!--				<TreeView :prop-departments="department.children"-->
-<!--						  :modelValue="selectedIds"-->
-<!--						  @update:modelValue="checkChanged"-->
-<!--				/>-->
+				<TreeView :prop-departments="department.children"
+						  :modelValue="selectedIds"
+						  @update:modelValue="checkChanged"
+				/>
 			</div>
 		</div>
 	</div>
@@ -77,7 +74,7 @@ export default {
 				const triStateChildrenCount = parent.children.filter(item => item.triState).length
 
 				// set checkbox tri-state and show children
-				parent.triState = this.showChildren[parent.department_id] = false
+				parent.triState = parent.showChildren = false
 
 				if (
 					(selectedChildrenCount > 0 && selectedChildrenCount !== childrenCount) ||
@@ -85,7 +82,7 @@ export default {
 				) {
 					parent.triState = true
 
-					this.showChildren[parent.department_id] = true
+					parent.showChildren = true
 				}
 			}
 		},
@@ -139,8 +136,10 @@ export default {
 				}
 			}
 		},
-		toggleShowChildren(index) {
-			this.showChildren[index] = !this.showChildren[index]
+		toggleShowChildren(department) {
+			department.showChildren = !department.showChildren
+
+			this.$forceUpdate()
 		},
 		checkChanged(department) {
 			this.selectedIds = []
